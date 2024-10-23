@@ -139,6 +139,7 @@ public class HudHandler {
 
     private void drawArmorHUD(int x, int y, boolean rotated, double scale) {
         GL11.glPushMatrix();
+        GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glEnable(GL11.GL_BLEND);
         OpenGlHelper.glBlendFunc(770, 771, 1, 0);
@@ -188,6 +189,7 @@ public class HudHandler {
         GL11.glColor4f(1F, 1F, 1F, 1F);
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glPopAttrib();
         GL11.glPopMatrix();
     }
 }
