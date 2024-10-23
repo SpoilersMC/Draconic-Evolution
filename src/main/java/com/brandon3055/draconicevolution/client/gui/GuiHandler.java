@@ -62,6 +62,14 @@ public class GuiHandler implements IGuiHandler {
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
         TileEntity tile = world.getTileEntity(x, y, z);
+        if( tile == null){
+            if(id == GUIID_TOOL_CONFIG){
+                return new ContainerAdvTool(player.inventory, new InventoryTool(player, null));
+            }else if(id == GUIID_TELEPORTER){
+                return new GUITeleporter(player);
+            }
+          return null;
+        }
         switch (id) {
         case GUIID_WEATHER_CONTROLLER:
             return tile instanceof TileWeatherController ? new ContainerWeatherController(player.inventory, (TileWeatherController)tile) : null;
@@ -87,7 +95,6 @@ public class GuiHandler implements IGuiHandler {
             return tile instanceof TileUpgradeModifier ? new ContainerUpgradeModifier(player.inventory, (TileUpgradeModifier)tile) : null;
         case GUIID_TOOL_CONFIG:
             return new ContainerAdvTool(player.inventory, new InventoryTool(player, null));
-
         default: break;
         }
         return null;
@@ -96,6 +103,17 @@ public class GuiHandler implements IGuiHandler {
     @Override
     public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
         TileEntity tile = world.getTileEntity(x, y, z);
+        if(tile == null){
+            switch(id){
+                case GUIID_TELEPORTER:
+                    return new GUITeleporter(player);
+                case GUIID_MANUAL:
+                    return new GUIManual();
+                case GUIID_TOOL_CONFIG:
+                    return new GUIToolConfig(player, new ContainerAdvTool(player.inventory, new InventoryTool(player, null)));
+                default : return null;
+            }
+        }
         switch (id) {
         case GUIID_WEATHER_CONTROLLER:
             return tile instanceof TileWeatherController ? new GUIWeatherController(player.inventory, (TileWeatherController)tile) : null;
