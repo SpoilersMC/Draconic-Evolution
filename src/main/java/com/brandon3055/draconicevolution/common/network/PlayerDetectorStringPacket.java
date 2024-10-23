@@ -37,10 +37,10 @@ public class PlayerDetectorStringPacket implements IMessage {
 
         @Override
         public IMessage onMessage(PlayerDetectorStringPacket message, MessageContext ctx) {
-            if (!(ctx.getServerHandler().playerEntity.openContainer instanceof ContainerPlayerDetector container)) {
+            if (!(ctx.getServerHandler().playerEntity.openContainer instanceof ContainerPlayerDetector)) {
                 return null;
             }
-            TilePlayerDetectorAdvanced detector = container.getDetector();
+            TilePlayerDetectorAdvanced detector = ((ContainerPlayerDetector)ctx.getServerHandler().playerEntity.openContainer).getDetector();
             if (detector == null) {
                 return null;
             }

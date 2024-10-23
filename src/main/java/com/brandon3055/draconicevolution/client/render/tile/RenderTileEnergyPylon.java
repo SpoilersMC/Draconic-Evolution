@@ -30,9 +30,10 @@ public class RenderTileEnergyPylon extends TileEntitySpecialRenderer {
     @Override
     public void renderTileEntityAt(TileEntity tile, double x, double y, double z, float timeSinceLastTick) {
 
-        if (!(tile instanceof TileEnergyPylon pylon)) {
+        if (!(tile instanceof TileEnergyPylon)) {
             return;
         }
+        TileEnergyPylon pylon = (TileEnergyPylon)tile;
         if (!pylon.active) {
             return;
         }

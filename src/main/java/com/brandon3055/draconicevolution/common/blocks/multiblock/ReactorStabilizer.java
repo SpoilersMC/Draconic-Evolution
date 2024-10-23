@@ -48,15 +48,15 @@ public class ReactorStabilizer extends BlockDE implements ITileEntityProvider {
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float subX,
             float subY, float subZ) {
         TileEntity tile = world.getTileEntity(x, y, z);
-        if (tile instanceof IReactorPart part) {
+        if (tile instanceof IReactorPart) {
             if (player.isSneaking()) {
-                part.changeComparatorMode();
+                ((IReactorPart)tile).changeComparatorMode();
                 if (!world.isRemote) {
-                    player.addChatComponentMessage(new ChatComponentText(part.getComparatorMode().toLocalizedString()));
+                    player.addChatComponentMessage(new ChatComponentText(((IReactorPart)tile).getComparatorMode().toLocalizedString()));
                 }
                 return true;
             }
-            TileReactorCore core = part.getMaster();
+            TileReactorCore core = ((IReactorPart)tile).getMaster();
             if (core != null) {
                 return core.onStructureRightClicked(player);
             }
@@ -88,16 +88,16 @@ public class ReactorStabilizer extends BlockDE implements ITileEntityProvider {
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
         ForgeDirection facing = ForgeDirection.getOrientation(Utills.determineOrientation(x, y, z, entity));
         TileEntity tile = world.getTileEntity(x, y, z);
-        if (tile instanceof TileReactorStabilizer stabilizer) {
-            stabilizer.facing = entity.isSneaking() ? facing.getOpposite() : facing;
-            stabilizer.onPlaced();
+        if (tile instanceof TileReactorStabilizer) {
+            ((TileReactorStabilizer)tile).facing = entity.isSneaking() ? facing.getOpposite() : facing;
+            ((TileReactorStabilizer)tile).onPlaced();
         }
     }
 
     @Override
     public void breakBlock(World world, int x, int y, int z, Block blockBroken, int metadata) {
         TileEntity tile = world.getTileEntity(x, y, z);
-        TileReactorCore core = tile instanceof IReactorPart part ? part.getMaster() : null;
+        TileReactorCore core = tile instanceof IReactorPart ? ((IReactorPart)tile).getMaster() : null;
         super.breakBlock(world, x, y, z, blockBroken, metadata);
         if (core != null) {
             core.updateReactorParts(false);

@@ -41,10 +41,10 @@ public interface IReactorPart {
 
     static int getComparatorOutput(IBlockAccess world, int x, int y, int z) {
         TileEntity tile = world.getTileEntity(x, y, z);
-        if (tile instanceof IReactorPart part) {
-            TileReactorCore core = part.getMaster();
+        if (tile instanceof IReactorPart) {
+            TileReactorCore core = ((IReactorPart)tile).getMaster();
             if (core != null) {
-                return core.getComparatorOutput(part.getComparatorMode());
+                return core.getComparatorOutput(((IReactorPart)tile).getComparatorMode());
             }
         }
         return 0;

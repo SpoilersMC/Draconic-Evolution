@@ -36,18 +36,18 @@ public class PlayerDetectorButtonPacket implements IMessage {
 
         @Override
         public IMessage onMessage(PlayerDetectorButtonPacket message, MessageContext ctx) {
-            if (!(ctx.getServerHandler().playerEntity.openContainer instanceof ContainerPlayerDetector container)) {
+            if (!(ctx.getServerHandler().playerEntity.openContainer instanceof ContainerPlayerDetector)) {
                 return null;
             }
-            TilePlayerDetectorAdvanced tile = container.getDetector();
+            TilePlayerDetectorAdvanced tile = ((ContainerPlayerDetector)ctx.getServerHandler().playerEntity.openContainer).getDetector();
             if (tile == null) {
                 return null;
             }
 
             switch (message.index) {
-                case 0 -> tile.range = message.value;
-                case 1 -> tile.isInWhiteListMode = message.value == 1;
-                case 2 -> tile.isOutputInverted = message.value == 1;
+            case 0: tile.range = message.value; break;
+            case 1: tile.isInWhiteListMode = message.value == 1; break;
+            case 2: tile.isOutputInverted = message.value == 1; break;
             }
             ctx.getServerHandler().playerEntity.worldObj.markBlockForUpdate(tile.xCoord, tile.yCoord, tile.zCoord);
             return null;

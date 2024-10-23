@@ -211,7 +211,7 @@ public class TileParticleGenerator extends TileEntity implements IDEPeripheral {
 
     public TileEnergyStorageCore getMaster() {
         TileEntity tile = master.getTileEntity(worldObj);
-        return tile instanceof TileEnergyStorageCore core ? core : null;
+        return tile instanceof TileEnergyStorageCore ? (TileEnergyStorageCore)tile : null;
     }
 
     public void setMaster(TileLocation master) {

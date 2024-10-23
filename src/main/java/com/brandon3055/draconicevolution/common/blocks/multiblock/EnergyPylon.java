@@ -72,8 +72,8 @@ public class EnergyPylon extends BlockDE implements ITileEntityProvider {
         int metadata = world.getBlockMetadata(x, y, z);
         if (metadata == 1 && side == 1 || metadata == 2 && side == 0) return icon_active_face;
         TileEntity tile = world.getTileEntity(x, y, z);
-        if (tile instanceof TileEnergyPylon pylon) {
-            return pylon.isReceivingEnergy ? icon_input : icon_output;
+        if (tile instanceof TileEnergyPylon) {
+            return ((TileEnergyPylon)tile).isReceivingEnergy ? icon_input : icon_output;
         }
         return icon_input;
     }
@@ -122,11 +122,11 @@ public class EnergyPylon extends BlockDE implements ITileEntityProvider {
         int metadata = world.getBlockMetadata(x, y, z);
         if (metadata == 0) return false;
         TileEntity tile = world.getTileEntity(x, y, z);
-        if (tile instanceof TileEnergyPylon pylon) {
+        if (tile instanceof TileEnergyPylon) {
             if (player.isSneaking()) {
-                pylon.nextCore();
+                ((TileEnergyPylon)tile).nextCore();
             } else {
-                pylon.onActivated();
+                ((TileEnergyPylon)tile).onActivated();
             }
             return true;
         }
@@ -146,8 +146,8 @@ public class EnergyPylon extends BlockDE implements ITileEntityProvider {
     @Override
     public int getComparatorInputOverride(World world, int x, int y, int z, int side) {
         TileEntity tile = world.getTileEntity(x, y, z);
-        if (tile instanceof TileEnergyPylon pylon) {
-            return (int) (pylon.getEnergyStored() / pylon.getMaxEnergyStored() * 15D);
+        if (tile instanceof TileEnergyPylon) {
+            return (int) (((TileEnergyPylon)tile).getEnergyStored() / ((TileEnergyPylon)tile).getMaxEnergyStored() * 15D);
         }
         return 0;
     }

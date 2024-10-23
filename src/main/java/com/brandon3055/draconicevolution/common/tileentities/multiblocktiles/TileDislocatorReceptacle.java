@@ -86,8 +86,8 @@ public class TileDislocatorReceptacle extends TileEntity implements IInventory {
     }
 
     public Teleporter.TeleportLocation getLocation() {
-        if (dislocator != null && dislocator.getItem() instanceof TeleporterMKI teleporter) {
-            return teleporter.getLocation(dislocator);
+        if (dislocator != null && dislocator.getItem() instanceof TeleporterMKI) {
+            return ((TeleporterMKI)dislocator.getItem()).getLocation(dislocator);
         }
         return null;
     }
@@ -185,9 +185,7 @@ public class TileDislocatorReceptacle extends TileEntity implements IInventory {
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
-        return index == 0 && stack != null
-                && stack.getItem() instanceof TeleporterMKI teleporter
-                && teleporter.getLocation(stack) != null;
+        return index == 0 && stack != null && stack.getItem() instanceof TeleporterMKI && ((TeleporterMKI)stack.getItem()).getLocation(stack) != null;
     }
 
     @Override

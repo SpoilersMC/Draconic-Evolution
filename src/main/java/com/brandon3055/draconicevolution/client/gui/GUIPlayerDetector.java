@@ -25,9 +25,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GUIPlayerDetector extends GuiContainer {
 
-    private static final ResourceLocation texture = new ResourceLocation(
-            References.MODID.toLowerCase(),
-            "textures/gui/PlayerDetector.png");
+    private static final ResourceLocation texture = new ResourceLocation(References.MODID.toLowerCase(), "textures/gui/PlayerDetector.png");
 
     private final ContainerPlayerDetector container;
     private boolean isInEditMode = false;
@@ -42,7 +40,7 @@ public class GUIPlayerDetector extends GuiContainer {
 
     public GUIPlayerDetector(InventoryPlayer playerInventory, TilePlayerDetectorAdvanced detector) {
         super(detector.getGuiContainer(playerInventory));
-        container = (ContainerPlayerDetector) inventorySlots;
+        container = (ContainerPlayerDetector)inventorySlots;
         Arrays.fill(names, "");
 
         xSize = 176;
@@ -57,11 +55,11 @@ public class GUIPlayerDetector extends GuiContainer {
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
-        if (isInEditMode) {
+        if(isInEditMode) {
             drawTexturedModalRect(guiLeft + 3, guiTop + ySize / 2, 3, 3, xSize - 6, (ySize / 2) - 3);
             drawNameChart(x, y);
         }
-        if (container.shouldShowInventory()) {
+        if(container.shouldShowInventory()) {
             drawTexturedModalRect(guiLeft + 142, guiTop + 19, xSize, 0, 23, 41);
         }
     }
@@ -76,7 +74,7 @@ public class GUIPlayerDetector extends GuiContainer {
         super.drawScreen(x, y, partialTicks);
         ArrayList<String> lines = new ArrayList<>();
         lines.add("Camouflage");
-        if ((x - guiLeft > 142 && x - guiLeft < 160) && (y - guiTop > 19 && y - guiTop < 37)
+        if((x - guiLeft > 142 && x - guiLeft < 160) && (y - guiTop > 19 && y - guiTop < 37)
                 && container.shouldShowInventory()) {
             drawHoveringText(lines, x, y, fontRendererObj);
         }
@@ -87,7 +85,7 @@ public class GUIPlayerDetector extends GuiContainer {
     public void initGui() {
         super.initGui();
         buttonList.clear();
-        if (!isInEditMode) {
+        if(!isInEditMode) {
             String mode = isInWhitelistMode ? "White List" : "Black List";
             int center = width / 2;
             buttonList.add(new GuiButton(0, center - 20 - 20, guiTop + 20, 20, 20, "+"));
@@ -110,51 +108,50 @@ public class GUIPlayerDetector extends GuiContainer {
     @Override
     protected void actionPerformed(GuiButton button) {
         switch (button.id) {
-            case 0 -> { // Range +
-                range = Math.min(range + 1, TilePlayerDetectorAdvanced.MAXIMUM_RANGE);
-                DraconicEvolution.network.sendToServer(new PlayerDetectorButtonPacket((byte) 0, (byte) range));
-            }
-            case 1 -> { // Range -
-                range = Math.max(range - 1, TilePlayerDetectorAdvanced.MINIMUM_RANGE);
-                DraconicEvolution.network.sendToServer(new PlayerDetectorButtonPacket((byte) 0, (byte) range));
-            }
-            case 3 -> { // Edit Whitelist/Blacklist
-                isInitScheduled = true;
-                isInEditMode = true;
-                container.setShouldShowInventory(false);
-            }
-            case 4 -> { // Toggle Whitelist/Blacklist mode
-                isInitScheduled = true;
-                isInWhitelistMode = !isInWhitelistMode;
-                byte whitelistMode = (byte) (isInWhitelistMode ? 1 : 0);
-                DraconicEvolution.network.sendToServer(new PlayerDetectorButtonPacket((byte) 1, whitelistMode));
-            }
-            case 5 -> { // Back
-                isInitScheduled = true;
-                isInEditMode = false;
-                container.setShouldShowInventory(true);
-            }
-            case 6 -> { // Invert Output
-                isInitScheduled = true;
-                isOutputInverted = !isOutputInverted;
-                byte outputMode = (byte) (isOutputInverted ? 1 : 0);
-                DraconicEvolution.network.sendToServer(new PlayerDetectorButtonPacket((byte) 2, outputMode));
-            }
+        case 0: // Range +
+            range = Math.min(range + 1, TilePlayerDetectorAdvanced.MAXIMUM_RANGE);
+            DraconicEvolution.network.sendToServer(new PlayerDetectorButtonPacket((byte)0, (byte)range));
+            break;
+        case 1: // Range -
+            range = Math.max(range - 1, TilePlayerDetectorAdvanced.MINIMUM_RANGE);
+            DraconicEvolution.network.sendToServer(new PlayerDetectorButtonPacket((byte)0, (byte)range));
+            break;
+        case 3: // Edit Whitelist/Blacklist
+            isInitScheduled = true;
+            isInEditMode = true;
+            container.setShouldShowInventory(false);
+            break;
+        case 4: // Toggle Whitelist/Blacklist mode
+            isInitScheduled = true;
+            isInWhitelistMode = !isInWhitelistMode;
+            byte whitelistMode = (byte)(isInWhitelistMode ? 1 : 0);
+            DraconicEvolution.network.sendToServer(new PlayerDetectorButtonPacket((byte)1, whitelistMode));
+            break;
+        case 5: // Back
+            isInitScheduled = true;
+            isInEditMode = false;
+            container.setShouldShowInventory(true);
+            break;
+        case 6: // Invert Output
+            isInitScheduled = true;
+            isOutputInverted = !isOutputInverted;
+            byte outputMode = (byte)(isOutputInverted ? 1 : 0);
+            DraconicEvolution.network.sendToServer(new PlayerDetectorButtonPacket((byte)2, outputMode));
+            break;
         }
     }
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
-        if (this.selectedNameText.textboxKeyTyped(typedChar, keyCode)) {
+        if(this.selectedNameText.textboxKeyTyped(typedChar, keyCode)) {
             return;
         }
-        if (keyCode == 28) {
-            if (selectedNameText.isFocused()) {
+        if(keyCode == 28) {
+            if(selectedNameText.isFocused()) {
                 names[selectedMameIndex] = selectedNameText.getText();
                 selectedNameText.setText("");
                 selectedNameText.setFocused(false);
-                DraconicEvolution.network.sendToServer(
-                        new PlayerDetectorStringPacket((byte) selectedMameIndex, names[selectedMameIndex]));
+                DraconicEvolution.network.sendToServer(new PlayerDetectorStringPacket((byte)selectedMameIndex, names[selectedMameIndex]));
                 selectedMameIndex = -1;
             }
         } else {
@@ -164,10 +161,10 @@ public class GUIPlayerDetector extends GuiContainer {
 
     @Override
     public void updateScreen() {
-        if (isInitScheduled) {
+        if(isInitScheduled) {
             initTick++;
         }
-        if (initTick > 1) {
+        if(initTick > 1) {
             initTick = 0;
             isInitScheduled = false;
             initGui();
@@ -178,21 +175,21 @@ public class GUIPlayerDetector extends GuiContainer {
     @Override
     protected void mouseClicked(int x, int y, int mouseButton) {
         super.mouseClicked(x, y, mouseButton);
-        if (isInEditMode) {
+        if(isInEditMode) {
             selectName(x - guiLeft, y - guiTop);
         }
     }
 
     private void drawGuiText() {
-        if (isInEditMode) {
-            if (selectedMameIndex != -1) {
+        if(isInEditMode) {
+            if(selectedMameIndex != -1) {
                 drawCenteredString(fontRendererObj, "Press Enter to save", xSize / 2, -22, 0xFF0000);
             }
-            for (int row = 0; row < 21; row++) {
-                for (int column = 0; column < 2; column++) {
-                    if (row + column * 21 != selectedMameIndex) {
+            for(int row = 0; row < 21; row++) {
+                for(int column = 0; column < 2; column++) {
+                    if(row + column * 21 != selectedMameIndex) {
                         String name = names[row + column * 21];
-                        if (name.length() > 13) {
+                        if(name.length() > 13) {
                             name = name.substring(0, 13) + "...";
                         }
                         fontRendererObj.drawString(name, 5 + column * 84, 6 + row * 9, 0x980000);
@@ -213,28 +210,26 @@ public class GUIPlayerDetector extends GuiContainer {
         int x = rawX - guiLeft;
         int y = rawY - guiTop;
 
-        for (int row = 0; row < 21; row++) {
+        for(int row = 0; row < 21; row++) {
             drawTexturedModalRect(guiLeft + 4, guiTop + 4 + row * 9, 0, ySize, 186, 10);
         }
 
-        for (int row = 0; row < 21; row++) {
-            for (int column = 0; column < 2; column++) {
-                if ((x > 4 + column * 84 && x < (xSize / 2) - 1 + column * 82) && (y > 4 + row * 9 && y < 13 + row * 9)
-                        || row + column * 21 == selectedMameIndex)
+        for(int row = 0; row < 21; row++) {
+            for(int column = 0; column < 2; column++) {
+                if((x > 4 + column * 84 && x < (xSize / 2) - 1 + column * 82) && (y > 4 + row * 9 && y < 13 + row * 9) || row + column * 21 == selectedMameIndex)
                     drawTexturedModalRect(guiLeft + 5 + column * 84, guiTop + 5 + row * 9, 0, ySize + 10, 82, 8);
             }
         }
     }
 
     public void selectName(int x, int y) {
-        if (isInitScheduled) {
+        if(isInitScheduled) {
             return;
         }
 
-        for (int row = 0; row < 21; row++) {
-            for (int column = 0; column < 2; column++) {
-                if ((x > 4 + column * 84 && x < (xSize / 2) - 1 + column * 82)
-                        && (y > 4 + row * 9 && y < 13 + row * 9)) {
+        for(int row = 0; row < 21; row++) {
+            for(int column = 0; column < 2; column++) {
+                if((x > 4 + column * 84 && x < (xSize / 2) - 1 + column * 82) && (y > 4 + row * 9 && y < 13 + row * 9)) {
                     selectedMameIndex = row + column * 21;
                     selectedNameText.setText(names[row + column * 21]);
                     selectedNameText.setFocused(true);
@@ -247,8 +242,8 @@ public class GUIPlayerDetector extends GuiContainer {
     private void syncWithServer() {
         TilePlayerDetectorAdvanced detector = container.getDetector();
         isInWhitelistMode = detector.isInWhiteListMode;
-        for (int i = 0; i < detector.names.length; i++) {
-            if (detector.names[i] != null) {
+        for(int i = 0; i < detector.names.length; i++) {
+            if(detector.names[i] != null) {
                 names[i] = detector.names[i];
             }
         }

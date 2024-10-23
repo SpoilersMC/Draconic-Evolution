@@ -21,13 +21,13 @@ public class RenderTileReactorStabilizer extends TileEntitySpecialRenderer {
 
     @Override
     public void renderTileEntityAt(TileEntity tile, double x, double y, double z, float partialTick) {
-        if (!(tile instanceof TileReactorStabilizer stabilizer)) {
+        if (!(tile instanceof TileReactorStabilizer)) {
             return;
         }
         GL11.glPushMatrix();
         GL11.glTranslated(x + 0.5, y + 0.5, z + 0.5);
 
-        renderCore(stabilizer, partialTick);
+        renderCore((TileReactorStabilizer)tile, partialTick);
 
         GL11.glPopMatrix();
     }
@@ -41,14 +41,11 @@ public class RenderTileReactorStabilizer extends TileEntitySpecialRenderer {
         int angle = 90;
         ForgeDirection axis = stabilizer.facing;
         switch (stabilizer.facing) {
-            case DOWN -> axis = ForgeDirection.WEST;
-            case SOUTH -> {
-                angle = 180;
-                axis = ForgeDirection.EAST;
-            }
-            case UP -> axis = ForgeDirection.EAST;
-            case WEST -> axis = ForgeDirection.UP;
-            case EAST -> axis = ForgeDirection.DOWN;
+        case DOWN: axis = ForgeDirection.WEST; break;
+        case SOUTH: angle = 180; axis = ForgeDirection.EAST; break;
+        case UP: axis = ForgeDirection.EAST; break;
+        case WEST: axis = ForgeDirection.UP; break;
+        case EAST: axis = ForgeDirection.DOWN; break;
         }
         if (stabilizer.facing != ForgeDirection.NORTH) {
             GL11.glRotated(angle, axis.offsetX, axis.offsetY, axis.offsetZ);

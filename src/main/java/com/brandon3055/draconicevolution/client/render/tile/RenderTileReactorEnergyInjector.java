@@ -19,13 +19,13 @@ public class RenderTileReactorEnergyInjector extends TileEntitySpecialRenderer {
 
     @Override
     public void renderTileEntityAt(TileEntity tile, double x, double y, double z, float partialTick) {
-        if (!(tile instanceof TileReactorEnergyInjector injector)) {
+        if (!(tile instanceof TileReactorEnergyInjector)) {
             return;
         }
         GL11.glPushMatrix();
         GL11.glTranslated(x + 0.5, y + 0.5, z + 0.5);
 
-        renderCore(injector);
+        renderCore((TileReactorEnergyInjector)tile);
 
         GL11.glPopMatrix();
     }
@@ -37,14 +37,11 @@ public class RenderTileReactorEnergyInjector extends TileEntitySpecialRenderer {
         int angle = 90;
         ForgeDirection axis = injector.facing;
         switch (injector.facing) {
-            case UP -> {
-                angle = 180;
-                axis = ForgeDirection.WEST;
-            }
-            case SOUTH -> axis = ForgeDirection.WEST;
-            case NORTH -> axis = ForgeDirection.EAST;
-            case WEST -> axis = ForgeDirection.NORTH;
-            case EAST -> axis = ForgeDirection.SOUTH;
+        case UP: angle = 180; axis = ForgeDirection.WEST; break;
+        case SOUTH: axis = ForgeDirection.WEST; break;
+        case NORTH: axis = ForgeDirection.EAST; break;
+        case WEST: axis = ForgeDirection.NORTH; break;
+        case EAST: axis = ForgeDirection.SOUTH; break;
         }
         if (injector.facing != ForgeDirection.DOWN) {
             GL11.glRotated(angle, axis.offsetX, axis.offsetY, axis.offsetZ);

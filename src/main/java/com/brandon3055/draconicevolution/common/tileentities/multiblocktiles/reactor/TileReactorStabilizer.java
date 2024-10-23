@@ -54,9 +54,9 @@ public class TileReactorStabilizer extends TileEntity implements IReactorPart, I
                 ForgeDirection back = facing.getOpposite();
                 TileEntity tile = worldObj
                         .getTileEntity(xCoord + back.offsetX, yCoord + back.offsetY, zCoord + back.offsetZ);
-                if (tile instanceof IEnergyReceiver receiver) {
+                if (tile instanceof IEnergyReceiver) {
                     int energyToReceive = Math.min(core.energySaturation, core.maxEnergySaturation / 100);
-                    int energyReceived = receiver.receiveEnergy(facing, energyToReceive, false);
+                    int energyReceived = ((IEnergyReceiver)tile).receiveEnergy(facing, energyToReceive, false);
                     core.energySaturation -= energyReceived;
                 }
             }
@@ -98,10 +98,10 @@ public class TileReactorStabilizer extends TileEntity implements IReactorPart, I
                     yCoord + facing.offsetY * distance,
                     zCoord + facing.offsetZ * distance);
             TileEntity tile = location.getTileEntity(worldObj);
-            if (tile instanceof TileReactorCore core) {
+            if (tile instanceof TileReactorCore) {
                 setUp(location);
-                core.updateReactorParts(false);
-                core.validateStructure();
+                ((TileReactorCore)tile).updateReactorParts(false);
+                ((TileReactorCore)tile).validateStructure();
                 return;
             }
         }
@@ -116,7 +116,7 @@ public class TileReactorStabilizer extends TileEntity implements IReactorPart, I
     @Override
     public TileReactorCore getMaster() {
         TileEntity tile = masterLocation.getTileEntity(worldObj);
-        return tile instanceof TileReactorCore core ? core : null;
+        return tile instanceof TileReactorCore ? ((TileReactorCore)tile) : null;
     }
 
     @Override

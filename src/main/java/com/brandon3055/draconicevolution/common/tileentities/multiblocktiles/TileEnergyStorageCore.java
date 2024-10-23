@@ -169,24 +169,17 @@ public class TileEnergyStorageCore extends TileObjectSync {
 
     private boolean scanStructure(IBlockAction innerBlock, IBlockAction outerBlock) {
         final IBlockAction isReplaceable = this::isReplaceable;
-        return switch (tier) {
-            case 0 -> scanCube(isReplaceable, 1);
-            case 1 -> scanRings(isReplaceable, 1, 1) && scanSides(outerBlock, 0, 1);
-            case 2 -> scanCube(outerBlock, 1);
-            case 3 -> scanCube(innerBlock, 1) && scanSides(outerBlock, 1, 2);
-            case 4 -> scanCube(innerBlock, 1) && scanSides(innerBlock, 1, 2)
-                    && scanSides(outerBlock, 1, 3)
-                    && scanRings(outerBlock, 2, 2);
-            case 5 -> scanCube(innerBlock, 2) && scanSides(innerBlock, 1, 3)
-                    && scanSides(outerBlock, 1, 4)
-                    && scanRings(outerBlock, 2, 3);
-            case 6 -> scanCube(innerBlock, 2) && scanSides(innerBlock, 2, 3)
-                    && scanSides(innerBlock, 1, 4)
-                    && scanSides(outerBlock, 1, 5)
-                    && scanRings(outerBlock, 2, 4)
-                    && scanRings(outerBlock, 3, 3);
-            default -> false;
-        };
+        switch (tier) {
+        case 0: return scanCube(isReplaceable, 1);
+        case 1: return scanRings(isReplaceable, 1, 1) && scanSides(outerBlock, 0, 1);
+        case 2: return scanCube(outerBlock, 1);
+        case 3: return scanCube(innerBlock, 1) && scanSides(outerBlock, 1, 2);
+        case 4: return scanCube(innerBlock, 1) && scanSides(innerBlock, 1, 2) && scanSides(outerBlock, 1, 3) && scanRings(outerBlock, 2, 2);
+        case 5: return scanCube(innerBlock, 2) && scanSides(innerBlock, 1, 3) && scanSides(outerBlock, 1, 4) && scanRings(outerBlock, 2, 3);
+        case 6: return scanCube(innerBlock, 2) && scanSides(innerBlock, 2, 3) && scanSides(innerBlock, 1, 4) && scanSides(outerBlock, 1, 5) 
+                && scanRings(outerBlock, 2, 4) && scanRings(outerBlock, 3, 3);
+        default: return false;
+        }
     }
 
     private boolean scanCube(IBlockAction action, int size) {
@@ -301,8 +294,8 @@ public class TileEnergyStorageCore extends TileObjectSync {
     private boolean activateInnerBlock(int x, int y, int z) {
         worldObj.setBlock(x, y, z, ModBlocks.invisibleMultiblock, 1, 2);
         TileEntity tile = worldObj.getTileEntity(x, y, z);
-        if (tile instanceof TileInvisibleMultiblock multiblock) {
-            multiblock.master = new TileLocation(xCoord, yCoord, zCoord);
+        if (tile instanceof TileInvisibleMultiblock) {
+            ((TileInvisibleMultiblock)tile).master = new TileLocation(xCoord, yCoord, zCoord);
             return true;
         }
         LogHelper.error("Failed to activate structure (activateRedstone)");
@@ -331,8 +324,8 @@ public class TileEnergyStorageCore extends TileObjectSync {
     private boolean activateOuterBlock(int x, int y, int z) {
         worldObj.setBlock(x, y, z, ModBlocks.invisibleMultiblock, 0, 2);
         TileEntity tile = worldObj.getTileEntity(x, y, z);
-        if (tile instanceof TileInvisibleMultiblock multiblock) {
-            multiblock.master = new TileLocation(xCoord, yCoord, zCoord);
+        if (tile instanceof TileInvisibleMultiblock) {
+            ((TileInvisibleMultiblock)tile).master = new TileLocation(xCoord, yCoord, zCoord);
             return true;
         }
         LogHelper.error("Failed to activate structure (activateDraconium)");
@@ -357,12 +350,12 @@ public class TileEnergyStorageCore extends TileObjectSync {
     private void activateStabilizers() {
         for (TileLocation stabilizer : stabilizers) {
             TileEntity tile = stabilizer.getTileEntity(worldObj);
-            if (!(tile instanceof TileParticleGenerator particleGenerator)) {
+            if (!(tile instanceof TileParticleGenerator)) {
                 LogHelper.error("Missing Tile Entity (Particle Generator)");
                 return;
             }
-            particleGenerator.isInStabilizerMode = true;
-            particleGenerator.setMaster(new TileLocation(xCoord, yCoord, zCoord));
+            ((TileParticleGenerator)tile).isInStabilizerMode = true;
+            ((TileParticleGenerator)tile).setMaster(new TileLocation(xCoord, yCoord, zCoord));
             worldObj.setBlockMetadataWithNotify(
                     stabilizer.getXCoord(),
                     stabilizer.getYCoord(),
@@ -374,16 +367,17 @@ public class TileEnergyStorageCore extends TileObjectSync {
     }
 
     private void initializeCapacity() {
-        long capacity = switch (tier) {
-            case 0 -> BalanceConfigHandler.energyStorageTier1Storage;
-            case 1 -> BalanceConfigHandler.energyStorageTier2Storage;
-            case 2 -> BalanceConfigHandler.energyStorageTier3Storage;
-            case 3 -> BalanceConfigHandler.energyStorageTier4Storage;
-            case 4 -> BalanceConfigHandler.energyStorageTier5Storage;
-            case 5 -> BalanceConfigHandler.energyStorageTier6Storage;
-            case 6 -> BalanceConfigHandler.energyStorageTier7Storage;
-            default -> 0;
-        };
+        long capacity;
+        switch (tier) {
+        case 0: capacity = BalanceConfigHandler.energyStorageTier1Storage; break;
+        case 1: capacity = BalanceConfigHandler.energyStorageTier2Storage; break;
+        case 2: capacity = BalanceConfigHandler.energyStorageTier3Storage; break;
+        case 3: capacity = BalanceConfigHandler.energyStorageTier4Storage; break;
+        case 4: capacity = BalanceConfigHandler.energyStorageTier5Storage; break;
+        case 5: capacity = BalanceConfigHandler.energyStorageTier6Storage; break;
+        case 6: capacity = BalanceConfigHandler.energyStorageTier7Storage; break;
+        default: capacity = 0;
+        }
         this.capacity = capacity;
         if (energy > capacity) energy = capacity;
     }
@@ -391,8 +385,8 @@ public class TileEnergyStorageCore extends TileObjectSync {
     public void deactivateStabilizers() {
         for (TileLocation stabilizer : stabilizers) {
             TileEntity tile = stabilizer.getTileEntity(worldObj);
-            if (tile instanceof TileParticleGenerator particleGenerator) {
-                particleGenerator.isInStabilizerMode = false;
+            if (tile instanceof TileParticleGenerator) {
+                ((TileParticleGenerator)tile).isInStabilizerMode = false;
                 worldObj.setBlockMetadataWithNotify(
                         stabilizer.getXCoord(),
                         stabilizer.getYCoord(),
@@ -406,13 +400,13 @@ public class TileEnergyStorageCore extends TileObjectSync {
     private boolean areStabilizersActive() {
         for (TileLocation stabilizer : stabilizers) {
             TileEntity tile = stabilizer.getTileEntity(worldObj);
-            if (!(tile instanceof TileParticleGenerator particleGenerator)) {
+            if (!(tile instanceof TileParticleGenerator)) {
                 return false;
             }
-            if (!particleGenerator.isInStabilizerMode || stabilizer.getBlockMetadata(worldObj) != 1) {
+            if (!((TileParticleGenerator)tile).isInStabilizerMode || stabilizer.getBlockMetadata(worldObj) != 1) {
                 return false;
             }
-            TileEnergyStorageCore core = particleGenerator.getMaster();
+            TileEnergyStorageCore core = ((TileParticleGenerator)tile).getMaster();
             if (core == null || core.xCoord != xCoord || core.yCoord != yCoord || core.zCoord != zCoord) {
                 return false;
             }

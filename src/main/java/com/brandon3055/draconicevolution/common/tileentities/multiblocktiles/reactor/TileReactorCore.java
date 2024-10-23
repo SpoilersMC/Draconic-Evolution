@@ -105,9 +105,10 @@ public class TileReactorCore extends TileObjectSync {
         }
 
         switch (reactorState) {
-            case OFFLINE -> offlineTick();
-            case STARTING -> startingTick();
-            case ONLINE, STOPPING -> runTick();
+        case OFFLINE: offlineTick(); break;
+        case STARTING: startingTick(); break;
+        case ONLINE: runTick(); break;
+        case STOPPING: runTick(); break;
         }
 
         detectAndSendChanges();
@@ -260,9 +261,9 @@ public class TileReactorCore extends TileObjectSync {
                 int targetY = yCoord + direction.offsetY * distance;
                 int targetZ = zCoord + direction.offsetZ * distance;
                 TileEntity tile = worldObj.getTileEntity(targetX, targetY, targetZ);
-                if (tile instanceof IReactorPart part && isFacingToCore(targetX, targetY, targetZ, part)) {
+                if (tile instanceof IReactorPart && isFacingToCore(targetX, targetY, targetZ, (IReactorPart)tile)) {
                     if (shouldSetUp) {
-                        part.setUp(new TileLocation(xCoord, yCoord, zCoord));
+                        ((IReactorPart)tile).setUp(new TileLocation(xCoord, yCoord, zCoord));
                     }
                     if (tile instanceof TileReactorStabilizer) {
                         stabilizerLocations.add(new TileLocation(targetX, targetY, targetZ));
@@ -284,8 +285,8 @@ public class TileReactorCore extends TileObjectSync {
             TileLocation location = iterator.next();
             if (location.getDistanceSquared(xCoord, yCoord, zCoord) > coreRadiusSquared) {
                 TileEntity tile = location.getTileEntity(worldObj);
-                if (tile instanceof TileReactorStabilizer stabilizer) {
-                    if (stabilizer.masterLocation.isThisLocation(xCoord, yCoord, zCoord)) {
+                if (tile instanceof TileReactorStabilizer) {
+                    if (((TileReactorStabilizer)tile).masterLocation.isThisLocation(xCoord, yCoord, zCoord)) {
                         stabilizersCount++;
                         continue;
                     }
@@ -324,9 +325,9 @@ public class TileReactorCore extends TileObjectSync {
                         xCoord + direction.offsetX * distance,
                         yCoord + direction.offsetY * distance,
                         zCoord + direction.offsetZ * distance);
-                if (tile instanceof IReactorPart part) {
-                    if (part.getMasterLocation().isThisLocation(xCoord, yCoord, zCoord)) {
-                        part.shutDown();
+                if (tile instanceof IReactorPart) {
+                    if (((IReactorPart)tile).getMasterLocation().isThisLocation(xCoord, yCoord, zCoord)) {
+                        ((IReactorPart)tile).shutDown();
                     }
                     break;
                 }
@@ -484,22 +485,17 @@ public class TileReactorCore extends TileObjectSync {
     }
 
     public int getComparatorOutput(ComparatorMode comparatorMode) {
-        return switch (comparatorMode) {
-            case TEMPERATURE -> toRedstoneStrength(reactionTemperature, maxReactTemperature, comparatorMode);
-            case TEMPERATURE_INVERTED -> 15
-                    - toRedstoneStrength(reactionTemperature, maxReactTemperature, comparatorMode);
-            case FIELD_CHARGE -> toRedstoneStrength(fieldCharge, maxFieldCharge, comparatorMode);
-            case FIELD_CHARGE_INVERTED -> 15 - toRedstoneStrength(fieldCharge, maxFieldCharge, comparatorMode);
-            case ENERGY_SATURATION -> toRedstoneStrength(energySaturation, maxEnergySaturation, comparatorMode);
-            case ENERGY_SATURATION_INVERTED -> 15
-                    - toRedstoneStrength(energySaturation, maxEnergySaturation, comparatorMode);
-            case CONVERTED_FUEL -> toRedstoneStrength(
-                    convertedFuel + conversionUnit,
-                    reactorFuel - conversionUnit,
-                    comparatorMode);
-            case CONVERTED_FUEL_INVERTED -> 15
-                    - toRedstoneStrength(convertedFuel + conversionUnit, reactorFuel - conversionUnit, comparatorMode);
-        };
+        switch (comparatorMode) {
+        case TEMPERATURE: return toRedstoneStrength(reactionTemperature, maxReactTemperature, comparatorMode);
+        case TEMPERATURE_INVERTED: return 15 - toRedstoneStrength(reactionTemperature, maxReactTemperature, comparatorMode);
+        case FIELD_CHARGE: return toRedstoneStrength(fieldCharge, maxFieldCharge, comparatorMode);
+        case FIELD_CHARGE_INVERTED: return 15 - toRedstoneStrength(fieldCharge, maxFieldCharge, comparatorMode);
+        case ENERGY_SATURATION: return toRedstoneStrength(energySaturation, maxEnergySaturation, comparatorMode);
+        case ENERGY_SATURATION_INVERTED: return 15 - toRedstoneStrength(energySaturation, maxEnergySaturation, comparatorMode);
+        case CONVERTED_FUEL: return toRedstoneStrength(convertedFuel + conversionUnit, reactorFuel - conversionUnit, comparatorMode);
+        case CONVERTED_FUEL_INVERTED: return 15 - toRedstoneStrength(convertedFuel + conversionUnit, reactorFuel - conversionUnit, comparatorMode);
+        }
+        return 0;
     }
 
     private int toRedstoneStrength(double value, double maxValue, ComparatorMode comparatorMode) {
@@ -509,16 +505,18 @@ public class TileReactorCore extends TileObjectSync {
         double proportion = value / maxValue;
         int redstoneStrength = (int) (proportion * 15D);
         switch (comparatorMode) {
-            case FIELD_CHARGE, FIELD_CHARGE_INVERTED -> {
-                if (proportion < 0.1) {
-                    redstoneStrength = 0;
-                }
+        case FIELD_CHARGE: 
+        case FIELD_CHARGE_INVERTED:
+            if (proportion < 0.1) {
+                redstoneStrength = 0;
             }
-            case CONVERTED_FUEL, CONVERTED_FUEL_INVERTED -> {
-                if (proportion > 0.9) {
-                    redstoneStrength = 15;
-                }
+            break;
+        case CONVERTED_FUEL:
+        case CONVERTED_FUEL_INVERTED:
+            if (proportion > 0.9) {
+                redstoneStrength = 15;
             }
+            break;
         }
         return redstoneStrength;
     }
@@ -527,19 +525,18 @@ public class TileReactorCore extends TileObjectSync {
     @SideOnly(Side.CLIENT)
     public void receiveObjectFromServer(int index, Object object) {
         switch (index) {
-            case 0 -> isStructureValid = (boolean) object;
-            case 2 -> startupInitialized = (boolean) object;
-            case 3 -> reactorState = ReactorState.getState((int) object);
-            case 4 -> reactorFuel = (int) object;
-            case 5 -> convertedFuel = (int) object;
-            case 6 -> energySaturation = (int) object;
-            case 7 -> maxEnergySaturation = (int) object;
-            case 8 -> reactionTemperature = (double) object;
-            case 9 -> maxReactTemperature = (double) object;
-            case 10 -> fieldCharge = (double) object;
-            case 11 -> maxFieldCharge = (double) object;
-            case 100 -> FMLClientHandler.instance().getClient().effectRenderer
-                    .addEffect(new Particles.ReactorExplosionParticle(worldObj, xCoord, yCoord, zCoord, (int) object));
+        case 0: isStructureValid = (boolean)object; break;
+        case 2: startupInitialized = (boolean)object; break;
+        case 3: reactorState = ReactorState.getState((int)object); break;
+        case 4: reactorFuel = (int)object; break;
+        case 5: convertedFuel = (int)object; break;
+        case 6: energySaturation = (int)object; break;
+        case 7: maxEnergySaturation = (int)object; break;
+        case 8: reactionTemperature = (double)object; break;
+        case 9: maxReactTemperature = (double)object; break;
+        case 10: fieldCharge = (double)object; break;
+        case 11: maxFieldCharge = (double)object; break;
+        case 100: FMLClientHandler.instance().getClient().effectRenderer.addEffect(new Particles.ReactorExplosionParticle(worldObj, xCoord, yCoord, zCoord, (int)object)); break;
         }
         super.receiveObjectFromServer(index, object);
     }

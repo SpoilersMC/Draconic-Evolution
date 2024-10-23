@@ -271,10 +271,11 @@ public class GUIReactor extends GUIBase {
     private void drawStatus() {
         String status = StatCollector.translateToLocal("gui.de.status.txt") + ": ";
         switch (core.reactorState) {
-            case OFFLINE -> status += EnumChatFormatting.DARK_GRAY;
-            case STARTING, STOPPING -> status += EnumChatFormatting.RED;
-            case ONLINE -> status += EnumChatFormatting.DARK_GREEN;
-            case INVALID -> status += EnumChatFormatting.DARK_RED;
+        case OFFLINE: status += EnumChatFormatting.DARK_GRAY; break;
+        case STARTING: status += EnumChatFormatting.RED; break;
+        case STOPPING: status += EnumChatFormatting.RED; break;
+        case ONLINE: status += EnumChatFormatting.DARK_GREEN; break;
+        case INVALID: status += EnumChatFormatting.DARK_RED; break;
         }
         status += core.reactorState.toLocalizedString(core.canStart());
         fontRendererObj.drawString(status, xSize - 5 - fontRendererObj.getStringWidth(status), 125, 0);

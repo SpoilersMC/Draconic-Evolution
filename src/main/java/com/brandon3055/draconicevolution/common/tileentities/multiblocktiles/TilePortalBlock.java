@@ -55,52 +55,50 @@ public class TilePortalBlock extends TileEntity {
             double targetZ = zCoord;
 
             switch (blockMetadata) {
-                case 1 -> {
-                    sourceX += offset1;
-                    sourceY += offset2;
-                    targetX += offset1 + smallOffset1;
-                    targetY += offset2 + smallOffset2;
-                    if (RenderManager.renderPosZ < zCoord + 0.5) {
-                        targetZ += 0.75;
-                    } else {
-                        sourceZ += 1;
-                        targetZ += 0.25;
-                    }
+            case 1:
+                sourceX += offset1;
+                sourceY += offset2;
+                targetX += offset1 + smallOffset1;
+                targetY += offset2 + smallOffset2;
+                if (RenderManager.renderPosZ < zCoord + 0.5) {
+                    targetZ += 0.75;
+                } else {
+                    sourceZ += 1;
+                    targetZ += 0.25;
                 }
-                case 2 -> {
-                    sourceY += offset1;
-                    sourceZ += offset2;
-                    targetY += offset1 + smallOffset1;
-                    targetZ += offset2 + smallOffset2;
-                    if (RenderManager.renderPosX < xCoord + 0.5) {
-                        targetX += 0.75;
-                    } else {
-                        sourceX += 1;
-                        targetX += 0.25;
-                    }
+                break;
+            case 2:
+                sourceY += offset1;
+                sourceZ += offset2;
+                targetY += offset1 + smallOffset1;
+                targetZ += offset2 + smallOffset2;
+                if (RenderManager.renderPosX < xCoord + 0.5) {
+                    targetX += 0.75;
+                } else {
+                    sourceX += 1;
+                    targetX += 0.25;
                 }
-                case 3 -> {
-                    sourceX += offset1;
-                    sourceZ += offset2;
-                    targetX += offset1 + smallOffset1;
-                    targetZ += offset2 + smallOffset2;
-                    if (RenderManager.renderPosY < yCoord + 0.5) {
-                        targetY += 0.75;
-                    } else {
-                        sourceY += 1;
-                        targetY += 0.25;
-                    }
+                break;
+            case 3:
+                sourceX += offset1;
+                sourceZ += offset2;
+                targetX += offset1 + smallOffset1;
+                targetZ += offset2 + smallOffset2;
+                if (RenderManager.renderPosY < yCoord + 0.5) {
+                    targetY += 0.75;
+                } else {
+                    sourceY += 1;
+                    targetY += 0.25;
                 }
+                break;
             }
-            DraconicEvolution.proxy.spawnParticle(
-                    new Particles.PortalParticle(worldObj, sourceX, sourceY, sourceZ, targetX, targetY, targetZ),
-                    256);
+            DraconicEvolution.proxy.spawnParticle(new Particles.PortalParticle(worldObj, sourceX, sourceY, sourceZ, targetX, targetY, targetZ), 256);
         }
     }
 
     public TileDislocatorReceptacle getMaster() {
         TileEntity tile = worldObj.getTileEntity(masterX, masterY, masterZ);
-        return tile instanceof TileDislocatorReceptacle receptacle ? receptacle : null;
+        return tile instanceof TileDislocatorReceptacle ? (TileDislocatorReceptacle)tile : null;
     }
 
     public boolean isPortalStillValid() {
