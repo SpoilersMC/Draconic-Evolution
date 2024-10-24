@@ -62,12 +62,21 @@ public class GuiHandler implements IGuiHandler {
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
         TileEntity tile = world.getTileEntity(x, y, z);
-        if(tile == null) return null;
+        if( tile == null){
+            if(id == GUIID_TOOL_CONFIG){
+                return new ContainerAdvTool(player.inventory, new InventoryTool(player, null));
+            }else if(id == GUIID_TELEPORTER){
+                return new GUITeleporter(player);
+            }
+          return null;
+        }
         switch (id) {
         case GUIID_WEATHER_CONTROLLER:
             return tile instanceof TileWeatherController ? new ContainerWeatherController(player.inventory, (TileWeatherController)tile) : null;
         case GUIID_SUN_DIAL:
             return tile instanceof TileSunDial ? new ContainerSunDial(player.inventory, (TileSunDial)tile) : null;
+        case GUIID_TELEPORTER:
+            return new GUITeleporter(player);
         case GUIID_GRINDER:
             return tile instanceof TileGrinder ? new ContainerGrinder(player.inventory, (TileGrinder)tile) : null;
         case GUIID_PLAYERDETECTOR:
@@ -94,7 +103,17 @@ public class GuiHandler implements IGuiHandler {
     @Override
     public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
         TileEntity tile = world.getTileEntity(x, y, z);
-        if(tile == null) return null;
+        if(tile == null){
+            switch(id){
+                case GUIID_TELEPORTER:
+                    return new GUITeleporter(player);
+                case GUIID_MANUAL:
+                    return new GUIManual();
+                case GUIID_TOOL_CONFIG:
+                    return new GUIToolConfig(player, new ContainerAdvTool(player.inventory, new InventoryTool(player, null)));
+                default : return null;
+            }
+        }
         switch (id) {
         case GUIID_WEATHER_CONTROLLER:
             return tile instanceof TileWeatherController ? new GUIWeatherController(player.inventory, (TileWeatherController)tile) : null;
